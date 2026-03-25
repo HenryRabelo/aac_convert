@@ -17,21 +17,13 @@
 ### Introduction
 This script was made to simplify converting local audio files purchased from stores such as Bandcamp to the MPEG-4 standard and open format of the AAC codec, as designed under the Fraunhofer model.
 
-It can convert single files or batch convert multiple files, and in the case of batch conversion, it will mirror the directory structure of the input directory to the output directory. It also tries to decrease the size of the existing cover image embedded on the metadata of each file and embed the decreased cover art to the converted file. Not only that, it will try to check whether there are any image or text files to ignore, though it would be best to point the input directory to one that contains audio files only.
+It can convert single files or batch convert multiple files, and in the case of batch conversion, it will mirror the directory structure of the input directory to the output directory. It also tries to decrease the size of the existing cover image embedded on the metadata of each file and embed the downsized cover art to the converted file. Not only that, it will try to check whether there are any image or text files to ignore, though it would be best to point the input directory to one that contains audio files only.
 
 To function properly this script requires a version of FFMPEG that was compiled with the flag to enable the libfdk_aac codec, which is usually disabled due to licensing. The Jellyfin project uses one such version.
 
 <div align="center">
   <img src=".assets/images/picture.png" alt="Demonstration of the '--help' command" width="400" align="center"/>
 </div>
-
-###### Put it in context:
-```sh
-cd directory
-echo "show commands / instructions on how to build it"
-make build.it
-# If applicable.
-```
 
 > ###### Dependencies:
 > For this script to run, it depends on a version of `ffmpeg` compiled with the flag to enable the libfdk_aac codec.
