@@ -67,10 +67,10 @@ Batch() {
     FILES=$(find "$DIRECTORY" -maxdepth 1 -type f)
     
     for MUSIC in $FILES; do
-      TYPE=$(file $MUSIC | grep --only-matching "image|text" | head -1)
+      TYPE=$(file $MUSIC | grep --only-matching "image\|text" | head -1)
       
       # Skip conversion for cover image files
-      if [ "$TYPE" == 'image' || "$TYPE" == 'text' ]; then
+      if [ "$TYPE" == 'image' -o "$TYPE" == 'text' ]; then
         continue
       fi
       
