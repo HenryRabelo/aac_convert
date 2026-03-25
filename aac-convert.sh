@@ -88,9 +88,11 @@ Convert() {
   # Get filename without extension
   FILENAME=$(echo "$1" | sed -e 's/\.[^./]*$//')
   CONVERT="${2}$FILENAME"
-  
-  ffmpeg -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease "$CONVERT".m4a
+
+  echo "Converting $1"
+  ffmpeg -loglevel "error" -stats -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease "$CONVERT".m4a
+  echo "Done."
+  echo ""
 }
 
 ResolveCommands "$@"
-
