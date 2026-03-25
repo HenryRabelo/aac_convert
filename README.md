@@ -38,8 +38,8 @@ chmod +x ~/.local/bin/ffmpeg
 
 Now give `executable` permission to this script file and once again put it in a directory in your run path. After this, it can be run as a command:
 ```sh
-chmod +x $(pwd)/aac-convert
-cp $(pwd)/aac-convert ~/.local/bin/aac-convert
+chmod +x $(pwd)/aac-convert.sh
+cp $(pwd)/aac-convert.sh ~/.local/bin/aac-convert
 
 aac-convert --help
 ```
