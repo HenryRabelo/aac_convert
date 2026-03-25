@@ -22,7 +22,7 @@ It can convert single files or batch convert multiple files, and in the case of 
 To function properly this script requires a version of FFMPEG that was compiled with the flag to enable the libfdk_aac codec, which is usually disabled due to licensing. The Jellyfin project uses one such version.
 
 <div align="center">
-  <img src=".assets/images/picture.png" alt="Demonstration of the '--help' command" width="400" align="center"/>
+  <img src=".assets/images/AAC_Converter.png" alt="Demonstration of the '--help' command" width="400" align="center"/>
 </div>
 
 > ###### Dependencies:
