@@ -17,7 +17,7 @@
 ### Introduction
 This script was made to simplify converting local audio files purchased from stores such as Bandcamp to the MPEG-4 standard and open format of the AAC codec, as designed under the Fraunhofer model.
 
-It can convert single files or batch convert multiple files, and in the case of batch conversion, it will mirror the directory structure of the input directory to the output directory. It also tries to decrease the size of the existing cover image embedded on the metadata of each file and embed the downsized cover art to the converted file. Not only that, it will try to check whether there are any image or text files to ignore, though it would be best to point the input directory to one that contains audio files only.
+It can convert single files or batch convert multiple files, and in the case of batch conversion, it will mirror the directory structure of the input directory to the output directory. It also tries to decrease the size of the existing cover image embedded on the metadata of each file and embed the downsized cover art to the converted file. Not only that, it will try to check whether there are any image or text files to ignore, though it would be best to point the input directory to one that contains audio files only. The script will deliver the converted file on a MPEG-4 Audio container, with the extension `.m4a`.
 
 To function properly this script requires a version of FFMPEG that was compiled with the flag to enable the libfdk_aac codec, which is usually disabled due to licensing. The Jellyfin project uses one such version.
 
@@ -29,14 +29,14 @@ To function properly this script requires a version of FFMPEG that was compiled 
 > For this script to run, it depends on a version of `ffmpeg` compiled with the flag to enable the libfdk_aac codec.
 
 ### How to Run it
-To run the script, first build or download the compiled version of ffmpeg from a repository and into a directory in your run path, then give it executable permission:
+To run the script, first build or download the compiled version of ffmpeg from a repository and into a directory in your run path, then give it `executable` permission:
 ```sh
 # First download the specific version of ffmpeg from a repository
 curl -o ~/.local/bin/ffmpeg https://example.com/ffmpeg
 chmod +x ~/.local/bin/ffmpeg
 ```
 
-Now give executable permission to this script file and once again put it in a directory in your run path. After this, it can be run as a command:
+Now give `executable` permission to this script file and once again put it in a directory in your run path. After this, it can be run as a command:
 ```sh
 chmod +x $(pwd)/aac-convert
 cp $(pwd)/aac-convert ~/.local/bin/aac-convert
@@ -50,10 +50,10 @@ aac-convert --help
 cd Music
 
 # For a single file conversion:
-aac-convert song.flac
+aac-convert --file song.flac
 
 # For a batch conversion of a directory named Albums to a new one named Converted:
-aac-convert Albums Converted
+aac-convert --batch Albums Converted
 ```
 
 ### How to Use it
