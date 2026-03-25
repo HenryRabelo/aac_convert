@@ -1,6 +1,4 @@
 #!/bin/bash
-# Custom ffmpeg package downloaded from Jellyfin:
-# https://github.com/jellyfin/jellyfin-ffmpeg
 
 Help() {
 echo "
