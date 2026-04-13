@@ -66,21 +66,34 @@ Batch() {
     mkdir -p "$OUTPUT/$DIRECTORY"
     FILES=$(find "$DIRECTORY" -maxdepth 1 -type f)
     
+    # Skip cycle for directories with no files
+    if [ "$FILES" == '' ]; then
+      continue
+    fi
+    
+    echo "Entering $(basename $DIRECTORY)"
+    echo ''
+    
     for MUSIC in $FILES; do
       TYPE=$(file $MUSIC | grep --only-matching "image\|text" | head -1)
       
-      # Skip conversion for cover image files
+      # Skip conversion for cover image files or lyric files
       if [ "$TYPE" == 'image' -o "$TYPE" == 'text' ]; then
         continue
       fi
       
       Convert "$MUSIC" "$OUTPUT/"
     done
+    
+    echo "$(basename $DIRECTORY) is done."
+    echo ''
   
   done
   unset IFS
   # Reset (unset) IFS
   
+  echo 'Batch conversion is finished.'
+  echo ''
   exit 0
 }
 
@@ -88,11 +101,12 @@ Convert() {
   # Get filename without extension
   FILENAME=$(echo "$1" | sed -e 's/\.[^./]*$//')
   CONVERT="${2}$FILENAME"
-
-  echo "Converting $1"
+  
+  echo "Converting: $(basename $1)"
   ffmpeg -loglevel "error" -stats -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease "$CONVERT".m4a
-  echo "Done."
-  echo ""
+  echo 'Done.'
+  echo ''
 }
 
 ResolveCommands "$@"
+
