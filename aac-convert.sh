@@ -25,28 +25,28 @@ ResolveCommands() {
   if [ -z $(ffmpeg -loglevel "quiet" -codecs | grep --only-matching "libfdk_aac" | head -1) ]; then
     echo 'Error: Your build of FFMPEG has not enabled the libfdk_aac codec.'
     exit 1
-  elif [ "$1" == '--help' ]; then
+  elif [ "$1" = '--help' ]; then
     Help
     exit 0
-  elif [ "$1" == '--file' ]; then
-    if ! [ -f "$2" ]; then
+  elif [ "$1" = '--file' ]; then
+    if [ ! -f "$2" ]; then
       echo 'Error: File not found in this directory.'
       echo 'Please pass the file as an argument.'
       exit 1
     fi
     Convert "$2"
     exit 0
-  elif [ "$1" == '--batch' ]; then
+  elif [ "$1" = '--batch' ]; then
     if [ "$2" -ef "$HOME" ]; then
       echo 'Error: Input directory can not be the home directory due to the'
       echo 'hidden configuration files present.'
       echo 'Please choose a dedicated directory for the input path.'
       exit 1
-    elif ! [ -d "$2" ]; then
+    elif [ ! -d "$2" ]; then
       echo 'Error: Input directory not found.'
       echo 'Please create or pass a valid input path as an argument.'
       exit 1
-    elif ! [ -d "$3" ]; then
+    elif [ ! -d "$3" ]; then
       echo 'Error: Output directory not found.'
       echo 'Please create or pass a valid output path as an argument.'
       exit 1
@@ -81,7 +81,7 @@ Batch() {
       TYPE=$(file $MUSIC | grep --only-matching "image\|text" | head -1)
       
       # Skip conversion for cover image files or lyric files
-      if [ "$TYPE" == 'image' -o "$TYPE" == 'text' ]; then
+      if [ "$TYPE" = 'image' -o "$TYPE" = 'text' ]; then
         continue
       fi
       
@@ -106,7 +106,7 @@ Convert() {
   CONVERT="${2}$FILENAME"
   
   echo "Converting: $(basename $1)"
-  ffmpeg -loglevel "error" -stats -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease "$CONVERT".m4a
+  ffmpeg -loglevel "error" -stats -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease:force_divisible_by=2 "$CONVERT".m4a
   echo 'Done.'
   echo ''
 }
