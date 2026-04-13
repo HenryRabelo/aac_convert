@@ -22,7 +22,10 @@ Commands:
 }
 
 ResolveCommands() {
-  if [ "$1" == '--help' ]; then
+  if [ -z $(ffmpeg -loglevel "quiet" -codecs | grep --only-matching "libfdk_aac" | head -1) ]; then
+    echo 'Error: Your build of FFMPEG has not enabled the libfdk_aac codec.'
+    exit 1
+  elif [ "$1" == '--help' ]; then
     Help
     exit 0
   elif [ "$1" == '--file' ]; then
@@ -41,11 +44,11 @@ ResolveCommands() {
       exit 1
     elif ! [ -d "$2" ]; then
       echo 'Error: Input directory not found.'
-      echo 'Pass the input path as an argument.'
+      echo 'Please create or pass a valid input path as an argument.'
       exit 1
     elif ! [ -d "$3" ]; then
       echo 'Error: Output directory not found.'
-      echo 'Pass the output path as an argument.'
+      echo 'Please create or pass a valid output path as an argument.'
       exit 1
     fi
     Batch "$2" "$3"
