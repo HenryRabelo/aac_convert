@@ -67,7 +67,7 @@ Batch() {
     FILES=$(find "$DIRECTORY" -maxdepth 1 -type f)
     
     # Skip cycle for directories with no files
-    if [ "$FILES" == '' ]; then
+    if [ -z "$FILES" ]; then
       continue
     fi
     
@@ -98,7 +98,7 @@ Batch() {
 }
 
 Convert() {
-  # Get filename without extension
+  # Get relative path and filename without extension
   FILENAME=$(echo "$1" | sed -e 's/\.[^./]*$//')
   CONVERT="${2}$FILENAME"
   
