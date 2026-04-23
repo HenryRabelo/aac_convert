@@ -26,14 +26,18 @@ To function properly this script requires a version of FFMPEG that was compiled 
 </div>
 
 > ###### Dependencies:
-> For this script to run, it depends on a version of `ffmpeg` compiled with the flag to enable the libfdk_aac codec.
+> For this script to run, it depends on a version of `ffmpeg` compiled with the flag to enable the libfdk_aac codec and `AtomicParsley` for metadata.
 
 ### How to Run it
-To run the script, first build or download the compiled version of ffmpeg from a repository and into a directory in your run path, then give it `executable` permission:
+To run the script, first build or download both the compiled version of FFMPEG and AtomicParsley from a repository and into a directory in your run path, then give them `executable` permission:
 ```sh
 # First download the specific version of ffmpeg from a repository
 curl -o ~/.local/bin/ffmpeg https://example.com/ffmpeg
 chmod +x ~/.local/bin/ffmpeg
+
+# And now download AtomicParsley for copying metadata
+curl -o ~/.local/bin/AtomicParsley https://example.com/AtomicParsley
+chmod +x ~/.local/bin/AtomicParsley
 ```
 
 Now give `executable` permission to this script file and once again put it in a directory in your run path. After this, it can be run as a command:
