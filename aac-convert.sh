@@ -22,7 +22,7 @@ Commands:
 }
 
 ResolveCommands() {
-  if [ -z $(ffmpeg -loglevel "quiet" -codecs | grep --only-matching 'libfdk_aac' | head -1) ]; then
+  if [ -z $(ffmpeg -loglevel 'quiet' -codecs | grep --only-matching 'libfdk_aac' | head -1) ]; then
     echo 'Error: Your build of FFMPEG has not enabled the libfdk_aac codec.'
     exit 1
   elif [ "$1" = '--help' ]; then
@@ -111,9 +111,9 @@ BuildTags() {
     
     # Add to return tag on each iteration
     if [ "$CUSTOM" = 'false' ]; then
-      TAG=$(echo "$TAG" "--$TAGNAME $VALUE")
+      TAG=$(echo "$TAG" "--$TAGNAME" "$VALUE")
     else
-      TAG=$(echo "$TAG" "--rDNSatom $VALUE" "name=$TAGNAME" "$DOMAIN")
+      TAG=$(echo "$TAG" '--rDNSatom' "$VALUE" "name=$TAGNAME" "$DOMAIN")
     fi
   done
   unset IFS
@@ -171,9 +171,9 @@ Convert() {
   local TAGS=$(BuildTags "$METADATA")
   
   echo 'Converting:' $(basename "$1")
-  ffmpeg -loglevel 'error' -stats -y -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease:force_divisible_by=2 "$CONVERT".m4a
+  ffmpeg -loglevel 'error' -stats -y -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease:force_divisible_by=2 "$CONVERT.m4a"
   
-  AtomicParsley "$CONVERT".m4a --overWrite $TAGS >/dev/null
+  AtomicParsley "$CONVERT.m4a" --overWrite $TAGS >/dev/null
   echo 'Done.'
   echo ''
 }
