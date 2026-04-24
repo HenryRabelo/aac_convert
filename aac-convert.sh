@@ -124,7 +124,7 @@ BuildTags() {
 
 Batch() {
   local INDICATOR=1
-  local TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.m3u' | wc -l)
+  local TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.lrc\|.m3u' | wc -l)
   local INPUT=$(find "$1" -type d)
   local OUTPUT="$2"
 
@@ -153,7 +153,7 @@ Batch() {
       local PERCENTAGE=$(echo "scale=2; ($INDICATOR * 100 / $TOTALFILES)" | bc)
       local FILESREM=$(( TOTALFILES - INDICATOR ))
       local TIMEREM=$(( (($SECONDS * $TOTALFILES) / $INDICATOR) - $SECONDS ))
-      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s' '/' $(( $TIMEREM / 60 ))'m '$(( $TIMEREM % 60 ))'s' 'remaining.'
+      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s' '-' $(( $TIMEREM / 60 ))'m '$(( $TIMEREM % 60 ))'s' 'remaining.'
       Convert "$MUSIC" "$OUTPUT/"
       ((INDICATOR++))
     done
@@ -170,8 +170,8 @@ Batch() {
 }
 
 Convert() {
-  # Get relative path and filename without extension
-  local FILENAME=$(echo "$1" | sed -e 's/\.[^./]*$//')
+  # Get relative path and filename without extension and problem characters
+  local FILENAME=$(echo $(dirname "$1")'/'$(basename "$1" | sed -e 's/\.[^./]*$//' | tr -d "<>*|\\:/\"?" | iconv -f utf8 -t ascii//TRANSLIT))
   local CONVERT="${2}$FILENAME"
   local METADATA=$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')
   local TAGS=$(BuildTags "$METADATA")
