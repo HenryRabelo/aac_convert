@@ -62,7 +62,7 @@ ResolveCommands() {
 BuildTags() {
   TAG=''
   local CUSTOM=''
-  local DOMAIN='domain=com.apple.iTunes'
+  local DOMAIN='domain="com.apple.iTunes"'
   local TOTALTRACKS=$(echo "$1" | grep 'totaltracks' | cut -d'=' -f2-)
   local TOTALDISCS=$(echo "$1" | grep 'totaldiscs' | cut -d'=' -f2-)
   
@@ -75,13 +75,12 @@ BuildTags() {
     if [ -z "$VALUE" ]; then
       continue
     elif [ "$TAGNAME" = 'musicbrainz_albumid' ]; then
-      TAGNAME='MusicBrainz Album Id'
       CUSTOM='true'
     elif [ "$TAGNAME" = 'releasecountry' ]; then
-      TAGNAME='MusicBrainz Album Release Country'
       CUSTOM='true'
     elif [ "$TAGNAME" = 'releasetype' ]; then
-      TAGNAME='MusicBrainz Album Type'
+      CUSTOM='true'
+    elif [ "$TAGNAME" = 'label' ]; then
       CUSTOM='true'
     elif [ "$TAGNAME" = 'replaygain_track_gain' ]; then
       CUSTOM='true'
@@ -111,9 +110,9 @@ BuildTags() {
     
     # Add to return tag on each iteration
     if [ "$CUSTOM" = 'false' ]; then
-      TAG=$(echo "$TAG" "--$TAGNAME" "$VALUE")
+      TAG=$(echo "$TAG" "--$TAGNAME" "\"$VALUE\"")
     else
-      TAG=$(echo "$TAG" '--rDNSatom' "$VALUE" "name=$TAGNAME" "$DOMAIN")
+      TAG=$(echo "$TAG" '--rDNSatom' "\"$VALUE\"" "name=\"$TAGNAME\"" "$DOMAIN")
     fi
   done
   unset IFS
@@ -124,6 +123,8 @@ BuildTags() {
 }
 
 Batch() {
+  local INDICATOR=1
+  local TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.m3u' | wc -l)
   local INPUT=$(find "$1" -type d)
   local OUTPUT="$2"
 
@@ -149,7 +150,12 @@ Batch() {
         continue
       fi
       
+      local PERCENTAGE=$(echo "scale=2; ($INDICATOR * 100 / $TOTALFILES)" | bc)
+      local FILESREM=$(( TOTALFILES - INDICATOR ))
+      local TIMEREM=$(( (($SECONDS * $TOTALFILES) / $INDICATOR) - $SECONDS ))
+      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s' '/' $(( $TIMEREM / 60 ))'m '$(( $TIMEREM % 60 ))'s' 'remaining.'
       Convert "$MUSIC" "$OUTPUT/"
+      ((INDICATOR++))
     done
     
     echo $(basename "$DIRECTORY") 'is done.'
@@ -173,7 +179,7 @@ Convert() {
   echo 'Converting:' $(basename "$1")
   ffmpeg -loglevel 'error' -stats -y -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease:force_divisible_by=2 "$CONVERT.m4a"
   
-  AtomicParsley "$CONVERT.m4a" --overWrite $TAGS >/dev/null
+  eval AtomicParsley "\"$CONVERT.m4a\"" --overWrite "$TAGS" >/dev/null
   echo 'Done.'
   echo ''
 }
