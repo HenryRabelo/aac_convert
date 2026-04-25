@@ -171,7 +171,7 @@ Batch() {
 
 Convert() {
   # Get relative path and filename without extension and problem characters
-  local FILENAME=$(echo $(dirname "$1")'/'$(basename "$1" | sed -e 's/\.[^./]*$//' | tr -d "<>*|\\:/\"?" | iconv -f utf8 -t ascii//TRANSLIT))
+  local FILENAME=$(echo $(dirname "$1")'/'$(basename "$1" | sed -e 's/\.[^./]*$//' | tr -d "<>*|\\:/\"?"))
   local CONVERT="${2}$FILENAME"
   local METADATA=$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')
   local TAGS=$(BuildTags "$METADATA")
