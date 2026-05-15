@@ -64,6 +64,7 @@ ResolveCommands() {
       exit 1
     fi
     Batch "$2" "$3"
+    unset IFS  # Reset (unset) IFS
     exit 0
   else
     Help
@@ -116,9 +117,9 @@ BuildTags() {
     
     # Add to return tag on each iteration
     if [ "$CUSTOM" = 'false' ]; then
-      TAG=$(echo "$TAG" "--$TAGNAME" "\"$VALUE\"")
+      TAG="$TAG --$TAGNAME \"$VALUE\""
     else
-      TAG=$(echo "$TAG" '--rDNSatom' "\"$VALUE\"" "name=\"$TAGNAME\"" "$DOMAIN")
+      TAG="$TAG --rDNSatom \"$VALUE\" name=\"$TAGNAME\" $DOMAIN"
     fi
   done
   
@@ -127,7 +128,7 @@ BuildTags() {
 }
 
 Batch() {
-  local -r TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.lrc\|.m3u' | wc -l)
+  local -r TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.lrc\|.m3u' --count)
   local -r INPUT=$(find "$1" -type d)
   local -r OUTPUT="${2%/}"
   local INDICATOR=1
@@ -151,25 +152,25 @@ Batch() {
       TYPE=$(file "$MUSIC" | grep --only-matching "image\|text" | head -1)
       
       # Skip conversion for cover image files or lyric files
-      if [ "$TYPE" = 'image' -o "$TYPE" = 'text' ]; then
+      if [ "$TYPE" = 'image' ] || [ "$TYPE" = 'text' ]; then
         continue
       fi
       
       clear
       
-      if [ ! "$PREVIOUS" = '' ]; then
-        echo $(basename "$PREVIOUS") 'is done.'
+      if [ ! -z "$PREVIOUS" ]; then
+        echo "$(basename "$PREVIOUS") is done."
         echo ''
       fi
       
-      echo 'Converting:' $(basename "$DIRECTORY")
+      echo "Converting: $(basename "$DIRECTORY")"
       echo ''
       
       PERCENTAGE=$(echo "scale=2; ($INDICATOR * 100 / $TOTALFILES)" | bc)
       FILESREM=$(( TOTALFILES - INDICATOR ))
-      TIMEREM=$(( (($SECONDS * $TOTALFILES) / $INDICATOR) - $SECONDS ))
+      TIMEREM=$(( ((SECONDS * TOTALFILES) / INDICATOR) - SECONDS ))
       
-      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Remaining:' $(( $TIMEREM / 60 ))'m '$(( $TIMEREM % 60 ))'s' '-' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s'
+      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Remaining:' $(( TIMEREM / 60 ))'m '$(( TIMEREM % 60 ))'s' '-' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s'
       Convert "$MUSIC" "$OUTPUT"
       
       ((INDICATOR++))
@@ -181,17 +182,16 @@ Batch() {
   
   echo 'Batch conversion is finished.'
   echo ''
-  exit 0
 }
 
 Convert() {
   # Get relative path and filename without extension and problem characters
-  local FILENAME=$(echo $(dirname "$1")'/'$(basename "${1%.*}" | tr -d "<>*|\\:/\"?"))
+  local FILENAME="$(dirname "$1")/$(basename "${1%.*}" | tr -d '<>*|\:/"?')"
   local CONVERT="${2}/$FILENAME"
   local METADATA=$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')
   local TAGS=$(BuildTags "$METADATA")
   
-  echo 'Converting:' $(basename "$1")
+  echo "Converting: $(basename "$1")"
   
   ffmpeg -loglevel 'error' -stats -y -i "$1" -c:a libfdk_aac -afterburner 1 -cutoff 20000 -ar 44100 -vbr 5 -c:v png -vf scale=600:600:force_original_aspect_ratio=decrease:force_divisible_by=2 "$CONVERT.m4a"
   eval AtomicParsley "\"$CONVERT.m4a\"" --overWrite "$TAGS" >/dev/null
@@ -201,5 +201,3 @@ Convert() {
 }
 
 ResolveCommands "$@"
-unset IFS
-# Reset (unset) IFS
