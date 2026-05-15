@@ -131,9 +131,9 @@ Batch() {
   local -r INPUT=$(find "$1" -type d)
   local -r OUTPUT="${2%/}"
   local INDICATOR=1
-  local PREVIOUS=''
   local FILES=''
   local TYPE=''
+  local PREVIOUS=''
   local PERCENTAGE=''
   local FILESREM=''
   local TIMEREM=''
@@ -186,7 +186,7 @@ Batch() {
 
 Convert() {
   # Get relative path and filename without extension and problem characters
-  local FILENAME=$(echo $(dirname "$1")'/'$(basename "$1" | sed -e 's/\.[^./]*$//' | tr -d "<>*|\\:/\"?"))
+  local FILENAME=$(echo $(dirname "$1")'/'$(basename "${1%.*}" | tr -d "<>*|\\:/\"?"))
   local CONVERT="${2}/$FILENAME"
   local METADATA=$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')
   local TAGS=$(BuildTags "$METADATA")
