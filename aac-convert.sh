@@ -25,7 +25,7 @@ Commands:
 }
 
 ResolveCommands() {
-  local -r FDK=$(ffmpeg -loglevel 'quiet' -codecs | grep --only-matching 'libfdk_aac' | head -1)
+  local -r FDK="$(ffmpeg -loglevel 'quiet' -codecs | grep --only-matching 'libfdk_aac' | head -1)"
   if [ -z "$FDK" ]; then
     echo 'Error: Your build of FFMPEG has not enabled the libfdk_aac codec.'
     exit 1
@@ -78,12 +78,12 @@ BuildTags() {
   local VALUE=''
   local CUSTOM=''
   local DOMAIN='domain="com.apple.iTunes"'
-  local TOTALTRACKS=$(echo "$1" | grep 'totaltracks' | cut -d'=' -f2-)
-  local TOTALDISCS=$(echo "$1" | grep 'totaldiscs' | cut -d'=' -f2-)
+  local TOTALTRACKS="$(echo "$1" | grep 'totaltracks' | cut -d'=' -f2-)"
+  local TOTALDISCS="$(echo "$1" | grep 'totaldiscs' | cut -d'=' -f2-)"
   
   for DATA in $1; do
-    TAGNAME=$(echo "$DATA" | cut -d'=' -f1)
-    VALUE=$(echo "$DATA" | cut -d'=' -f2-)
+    TAGNAME="$(echo "$DATA" | cut -d'=' -f1)"
+    VALUE="$(echo "$DATA" | cut -d'=' -f2-)"
     
     # Skip if data somehow has no assigned value
     if [ -z "$VALUE" ]; then
@@ -128,8 +128,8 @@ BuildTags() {
 }
 
 Batch() {
-  local -r TOTALFILES=$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.lrc\|.m3u' --count)
-  local -r INPUT=$(find "$1" -type d)
+  local -r TOTALFILES="$(find "$1" -type f | grep --invert-match '.jpg\|.png\|.txt\|.lrc\|.m3u' --count)"
+  local -r INPUT="$(find "$1" -type d)"
   local -r OUTPUT="${2%/}"
   local INDICATOR=1
   local FILES=''
@@ -141,7 +141,7 @@ Batch() {
 
   for DIRECTORY in $INPUT; do
     mkdir -p "$OUTPUT/$DIRECTORY"
-    FILES=$(find "$DIRECTORY" -maxdepth 1 -type f)
+    FILES="$(find "$DIRECTORY" -maxdepth 1 -type f)"
     
     # Skip cycle for directories with no files
     if [ -z "$FILES" ]; then
@@ -149,7 +149,7 @@ Batch() {
     fi
     
     for MUSIC in $FILES; do
-      TYPE=$(file "$MUSIC" | grep --only-matching "image\|text" | head -1)
+      TYPE="$(file "$MUSIC" | grep --only-matching 'image\|text' | head -1)"
       
       # Skip conversion for cover image files or lyric files
       if [ "$TYPE" = 'image' ] || [ "$TYPE" = 'text' ]; then
@@ -166,9 +166,9 @@ Batch() {
       echo "Converting: $(basename "$DIRECTORY")"
       echo ''
       
-      PERCENTAGE=$(echo "scale=2; ($INDICATOR * 100 / $TOTALFILES)" | bc)
-      FILESREM=$(( TOTALFILES - INDICATOR ))
-      TIMEREM=$(( ((SECONDS * TOTALFILES) / INDICATOR) - SECONDS ))
+      PERCENTAGE="$(echo "scale=2; ($INDICATOR * 100 / $TOTALFILES)" | bc)"
+      FILESREM="$(( TOTALFILES - INDICATOR ))"
+      TIMEREM="$(( ((SECONDS * TOTALFILES) / INDICATOR) - SECONDS ))"
       
       echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Remaining:' $(( TIMEREM / 60 ))'m '$(( TIMEREM % 60 ))'s' '-' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s'
       Convert "$MUSIC" "$OUTPUT"
@@ -188,8 +188,8 @@ Convert() {
   # Get relative path and filename without extension and problem characters
   local FILENAME="$(dirname "$1")/$(basename "${1%.*}" | tr -d '<>*|\:/"?')"
   local CONVERT="${2}/$FILENAME"
-  local METADATA=$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')
-  local TAGS=$(BuildTags "$METADATA")
+  local METADATA="$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')"
+  local TAGS="$(BuildTags "$METADATA")"
   
   echo "Converting: $(basename "$1")"
   
