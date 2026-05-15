@@ -73,13 +73,11 @@ ResolveCommands() {
 }
 
 BuildTags() {
-  local TAG=''
-  local TAGNAME=''
-  local VALUE=''
-  local CUSTOM=''
+  local TAG TAGNAME VALUE CUSTOM TOTALTRACKS TOTALDISCS
   local DOMAIN='domain="com.apple.iTunes"'
-  local TOTALTRACKS="$(echo "$1" | grep 'totaltracks' | cut -d'=' -f2-)"
-  local TOTALDISCS="$(echo "$1" | grep 'totaldiscs' | cut -d'=' -f2-)"
+  
+  TOTALTRACKS="$(echo "$1" | grep 'totaltracks' | cut -d'=' -f2-)"
+  TOTALDISCS="$(echo "$1" | grep 'totaldiscs' | cut -d'=' -f2-)"
   
   for DATA in $1; do
     TAGNAME="$(echo "$DATA" | cut -d'=' -f1)"
@@ -132,12 +130,7 @@ Batch() {
   local -r INPUT="$(find "$1" -type d)"
   local -r OUTPUT="${2%/}"
   local INDICATOR=1
-  local FILES=''
-  local TYPE=''
-  local PREVIOUS=''
-  local PERCENTAGE=''
-  local FILESREM=''
-  local TIMEREM=''
+  local FILES TYPE PREVIOUS PERCENTAGE FILESREM TIMEREM
 
   for DIRECTORY in $INPUT; do
     mkdir -p "$OUTPUT/$DIRECTORY"
@@ -170,7 +163,7 @@ Batch() {
       FILESREM="$(( TOTALFILES - INDICATOR ))"
       TIMEREM="$(( ((SECONDS * TOTALFILES) / INDICATOR) - SECONDS ))"
       
-      echo "$FILESREM files remaining - $PERCENTAGE% complete" '|' 'Remaining:' $(( TIMEREM / 60 ))'m '$(( TIMEREM % 60 ))'s' '-' 'Runtime:' $(( SECONDS / 60 ))'m '$(( SECONDS % 60 ))'s'
+      echo "$FILESREM files remaining - $PERCENTAGE% complete | Remaining: $(( TIMEREM / 60 ))m $(( TIMEREM % 60 ))s - Runtime: $(( SECONDS / 60 ))m $(( SECONDS % 60 ))s"
       Convert "$MUSIC" "$OUTPUT"
       
       ((INDICATOR++))
@@ -186,10 +179,11 @@ Batch() {
 
 Convert() {
   # Get relative path and filename without extension and problem characters
-  local FILENAME="$(dirname "$1")/$(basename "${1%.*}" | tr -d '<>*|\:/"?')"
-  local CONVERT="${2}/$FILENAME"
-  local METADATA="$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')"
-  local TAGS="$(BuildTags "$METADATA")"
+  local FILENAME CONVERT METADATA TAGS
+  FILENAME="$(dirname "$1")/$(basename "${1%.*}" | tr -d '<>*|\:/"?')"
+  CONVERT="${2}/$FILENAME"
+  METADATA="$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')"
+  TAGS="$(BuildTags "$METADATA")"
   
   echo "Converting: $(basename "$1")"
   
