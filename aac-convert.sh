@@ -26,12 +26,15 @@ Commands:
 
 ResolveCommands() {
   local -r FDK="$(ffmpeg -loglevel 'quiet' -codecs | grep --only-matching 'libfdk_aac' | head -1)"
+  
   if [ -z "$FDK" ]; then
     echo 'Error: Your build of FFMPEG has not enabled the libfdk_aac codec.'
     exit 1
+  
   elif [ "$1" = '--help' ]; then
     Help
     exit 0
+  
   elif [ "$1" = '--file' ]; then
     if [ ! -f "$2" ]; then
       echo 'Error: File not found in this directory.'
@@ -44,6 +47,7 @@ ResolveCommands() {
     fi
     Convert "$2"
     exit 0
+  
   elif [ "$1" = '--batch' ]; then
     if [ "$2" -ef "$HOME" ]; then
       echo 'Error: Input directory can not be the home directory due to the'
@@ -64,8 +68,10 @@ ResolveCommands() {
       exit 1
     fi
     Batch "$2" "$3"
-    unset IFS  # Reset (unset) IFS
+    # Reset (unset) IFS
+    unset IFS
     exit 0
+  
   else
     Help
     exit 1
@@ -86,6 +92,7 @@ BuildTags() {
     # Skip if data somehow has no assigned value
     if [ -z "$VALUE" ]; then
       continue
+    
     elif [ "$TAGNAME" = 'musicbrainz_albumid' ] || \
          [ "$TAGNAME" = 'releasecountry' ] || \
          [ "$TAGNAME" = 'releasetype' ] || \
@@ -95,19 +102,23 @@ BuildTags() {
          [ "$TAGNAME" = 'replaygain_track_peak' ] || \
          [ "$TAGNAME" = 'replaygain_album_peak' ]; then
       CUSTOM='true'
+    
     elif [ "$TAGNAME" = 'bpm' ]; then
       CUSTOM='false'
+    
     elif [ "$TAGNAME" = 'track' ]; then
       CUSTOM='false'
       if [ "$TOTALTRACKS" -gt 0 ]; then
         VALUE="$VALUE/$TOTALTRACKS"
       fi
+    
     elif [ "$TAGNAME" = 'disc' ]; then
       TAGNAME='disk'
       CUSTOM='false'
       if [ "$TOTALDISCS" -gt 0 ]; then
         VALUE="$VALUE/$TOTALDISCS"
       fi
+    
     else
       # Skip if data is not found on list
       continue
@@ -116,6 +127,7 @@ BuildTags() {
     # Add to return tag on each iteration
     if [ "$CUSTOM" = 'false' ]; then
       TAG="$TAG --$TAGNAME \"$VALUE\""
+    
     else
       TAG="$TAG --rDNSatom \"$VALUE\" name=\"$TAGNAME\" $DOMAIN"
     fi
