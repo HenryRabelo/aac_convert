@@ -108,14 +108,14 @@ BuildTags() {
     
     elif [ "$TAGNAME" = 'track' ]; then
       CUSTOM='false'
-      if [ "$TOTALTRACKS" -gt 0 ]; then
+      if [ ! -z "$TOTALTRACKS" ]; then
         VALUE="$VALUE/$TOTALTRACKS"
       fi
     
     elif [ "$TAGNAME" = 'disc' ]; then
       TAGNAME='disk'
       CUSTOM='false'
-      if [ "$TOTALDISCS" -gt 0 ]; then
+      if [ ! -z "$TOTALDISCS" ]; then
         VALUE="$VALUE/$TOTALDISCS"
       fi
     
@@ -176,7 +176,7 @@ Batch() {
       TIMEREM="$(( ((SECONDS * TOTALFILES) / INDICATOR) - SECONDS ))"
       
       echo "$FILESREM files remaining - $PERCENTAGE% complete | Remaining: $(( TIMEREM / 60 ))m $(( TIMEREM % 60 ))s - Runtime: $(( SECONDS / 60 ))m $(( SECONDS % 60 ))s"
-      Convert "$MUSIC" "$OUTPUT"
+      Convert "$MUSIC" "$OUTPUT/"
       
       ((INDICATOR++))
     done
@@ -193,7 +193,7 @@ Convert() {
   # Get relative path and filename without extension and problem characters
   local FILENAME CONVERT METADATA TAGS
   FILENAME="$(dirname "$1")/$(basename "${1%.*}" | tr -d '<>*|\:/"?')"
-  CONVERT="${2}/$FILENAME"
+  CONVERT="${2}$FILENAME"
   METADATA="$(ffmpeg -loglevel 'quiet' -i "$1" -metadata 'LYRICS=' -f ffmetadata - | awk -F'=' 'BEGIN {OFS="="} NR > 1 { $1=tolower($1); print $0 }')"
   TAGS="$(BuildTags "$METADATA")"
   
